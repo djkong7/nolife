@@ -22,6 +22,10 @@ public class ASTNodeFactory {
 			return new MinArrayNode();
 		} else if (nodeType == "MaxArrayNode") {
 			return new MaxArrayNode();
+		} else if (nodeType == "CmpStmtNode") {
+			return new CmpStmtNode();
+		} else if (nodeType == "StmtNode") {
+			return new StmtNode();
 		} else {
 			return null;
 		}

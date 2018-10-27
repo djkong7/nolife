@@ -316,25 +316,41 @@ void parameter_list() :
   )*
 }
 
-void compound_stmt() :
+ASTNode compound_stmt() :
 {
+  ASTNode compoundStatement = null;
 }
 {
-  < O_BEGIN > stmt_list() < O_END >
+  < O_BEGIN > compoundStatement = stmt_list() < O_END >
+  {
+    return compoundStatement;
+  }
 }
 
-void stmt_list() :
+ASTNode stmt_list() :
 {
+  ASTNode compoundStatement = factory.makeASTNode("CmpStmtNode");
+  ASTNode statement = null;
 }
 {
-  stmt()
+  statement = stmt()
+  {
+    compundStatement.addChild(statement);
+  }
   (
-    < O_SEMICOLON > stmt()
+    < O_SEMICOLON > statement = stmt()
+    {
+      compountStatement.addChild(statement);
+    }
   )*
+  {
+    return compoundStatement;
+  }
 }
 
 void stmt() :
 {
+  ASTNode statement = null;
 }
 {
   (
@@ -352,9 +368,15 @@ void stmt() :
 
 void assignment() :
 {
+  ASTNode statement = factory.makeASTNode("StmtNode");
+  ASTNode assignment = factory.makeASTNode("AssignmentNode");
+  ASTNode idDefinitionNode = null;
 }
 {
-  variable() < O_ASSIGN > expr()
+  idDefinitionNode = variable() < O_ASSIGN > expr()
+  {
+    assignment.addChild(idDefinitionNode);
+  }
 }
 
 void if_stmt() :
@@ -545,10 +567,16 @@ void term3Prime() :
 
 void factor() :
 {
+   
+  Token id;
 }
 {
   (
-    < O_IDENTIFIER >
+    id = < O_IDENTIFIER >
+    {
+      ASTNode idReference = factory.makeASTNode("IdRefNode");
+      idReference.addLabel(id.image);
+    }
     (
       < O_LBRACKET > expr() < O_RBRACKET >
     | < O_LPAREN >
@@ -558,6 +586,9 @@ void factor() :
       < O_RPAREN >
     )?
   | < O_INT >
+    {
+      ASTNode constantNode = factory.makeASTNode("ConstantNode");
+    }
   | < O_FLOATCON >
   | < O_CHAR >
   | < O_LPAREN > expr() < O_RPAREN >
@@ -565,14 +596,22 @@ void factor() :
   )
 }
 
-void variable() :
+ASTNode variable() :
 {
+  ASTNode idDefinitionNode = factory.makeASTNode("IdDefNode");
+  Token id;
 }
 {
-  < O_IDENTIFIER >
+  id = < O_IDENTIFIER >
+  {
+    idDefinitionNode.addLabel(id.image);
+  }
   (
     < O_LBRACKET > expr() < O_RBRACKET >
   )?
+  {
+    return idDefinitionNode;
+  }
 }
 
 void string() :
