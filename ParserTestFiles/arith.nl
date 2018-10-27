@@ -4,6 +4,7 @@ VAR a,b,c : INTEGER;
 
 BEGIN
 
+  a := 2 * c;
   a := b + c * b - c * (a + b);
   a := c + d;
   a := NOT (a MOD b + c)

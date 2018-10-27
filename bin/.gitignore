@@ -1,4 +1,4 @@
-/ast/
-/driver/
 /parser/
+/driver/
+/ast/
 /visitor/

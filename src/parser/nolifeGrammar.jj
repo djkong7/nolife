@@ -114,6 +114,7 @@ ASTNode program() :
   ASTNode programNode = factory.makeASTNode("ProgramNode");
   Token programName;
   ASTNode declarationsNode = null;
+  ASTNode compoundStatement = null;
 }
 {
   < O_PROGRAM > programName = < O_IDENTIFIER > < O_SEMICOLON >
@@ -129,7 +130,10 @@ ASTNode program() :
   (
     subprogram_decls()
   )?
-  compound_stmt()
+  compoundStatement = compound_stmt()
+  {
+    programNode.addChild(compoundStatement);
+  }
   {
     return programNode;
   }
@@ -335,12 +339,12 @@ ASTNode stmt_list() :
 {
   statement = stmt()
   {
-    compundStatement.addChild(statement);
+    compoundStatement.addChild(statement);
   }
   (
     < O_SEMICOLON > statement = stmt()
     {
-      compountStatement.addChild(statement);
+      compoundStatement.addChild(statement);
     }
   )*
   {
@@ -348,14 +352,14 @@ ASTNode stmt_list() :
   }
 }
 
-void stmt() :
+ASTNode stmt() :
 {
   ASTNode statement = null;
 }
 {
   (
     LOOKAHEAD(2)
-    assignment()
+    statement = assignment()
   | if_stmt()
   | while_stmt()
   | procedure_invocation()
@@ -364,18 +368,24 @@ void stmt() :
   | return_stmt()
   | case_stmt()
   )
+  {
+    return statement;
+  }
 }
 
-void assignment() :
+ASTNode assignment() :
 {
   ASTNode statement = factory.makeASTNode("StmtNode");
   ASTNode assignment = factory.makeASTNode("AssignmentNode");
   ASTNode idDefinitionNode = null;
+  ASTNode expressionNode = null;
 }
 {
-  idDefinitionNode = variable() < O_ASSIGN > expr()
+  idDefinitionNode = variable() < O_ASSIGN > expressionNode = expr()
   {
-    assignment.addChild(idDefinitionNode);
+    assignment.addChild(idDefinitionNode).addChild(expressionNode);
+    statement.addChild(assignment);
+    return statement;
   }
 }
 
@@ -485,11 +495,17 @@ void expr_list() :
   )*
 }
 
-void expr() :
+ASTNode expr() :
 {
+  ASTNode expressionNode = factory.makeASTNode("ExpNode");
+  ASTNode factorNode = null;
 }
 {
-  term1() exprPrime()
+  factorNode = term1() exprPrime()
+  {
+    expressionNode.addChild(factorNode);
+    return expressionNode;
+  }
 }
 
 void exprPrime() :
@@ -504,11 +520,15 @@ void exprPrime() :
   )
 }
 
-void term1() :
+ASTNode term1() :
 {
+  ASTNode factorNode = null;
 }
 {
-  term2() term1Prime()
+  factorNode = term2() term1Prime()
+  {
+    return factorNode;
+  }
 }
 
 void term1Prime() :
@@ -527,48 +547,89 @@ void term1Prime() :
   )
 }
 
-void term2() :
+ASTNode term2() :
 {
+  ASTNode factorNode = null;
 }
 {
-  term3() term2Prime()
+  factorNode = term3() factorNode = term2Prime(factorNode)
+  {
+    return factorNode;
+  }
 }
 
-void term2Prime() :
+ASTNode term2Prime(ASTNode leftFactorNode) :
 {
+  ASTNode rightFactorNode = null;
 }
 {
   (
-    < O_PLUS > term3() term2Prime()
-  | < O_MINUS > term3() term2Prime()
+    < O_PLUS > rightFactorNode = term3()
+    {
+      ASTNode addNode = factory.makeASTNode("AddNode");
+      addNode.addChild(leftFactorNode).addChild(rightFactorNode);
+    }
+    leftFactorNode = term2Prime(addNode)
+  | < O_MINUS > rightFactorNode = term3()
+    {
+      ASTNode subNode = factory.makeASTNode("SubNode");
+      subNode.addChild(leftFactorNode).addChild(rightFactorNode);
+    }
+    leftFactorNode = term2Prime(subNode)
   |
     {}
   )
+  {
+    return leftFactorNode;
+  }
 }
 
-void term3() :
+ASTNode term3() :
 {
+  ASTNode factorNode = null;
 }
 {
-  factor() term3Prime()
+  factorNode = factor() factorNode = term3Prime(factorNode)
+  {
+    return factorNode;
+  }
 }
 
-void term3Prime() :
+ASTNode term3Prime(ASTNode leftFactorNode) :
 {
+  ASTNode rightFactorNode = null;
 }
 {
   (
-    < O_TIMES > factor() term3Prime()
-  | < O_MOD > factor() term3Prime()
+    < O_TIMES > rightFactorNode = factor()
+    {
+      ASTNode multiplicationNode = factory.makeASTNode("MulNode");
+      multiplicationNode.addChild(leftFactorNode).addChild(rightFactorNode);
+    }
+    leftFactorNode = term3Prime(multiplicationNode)
+  | 
+    < O_MOD > rightFactorNode = factor()
+    {
+      ASTNode modNode = factory.makeASTNode("ModNode");
+      modNode.addChild(leftFactorNode).addChild(rightFactorNode);
+    }
+    leftFactorNode = term3Prime(modNode)
   |
     {}
   )
+  {
+    return leftFactorNode;
+  }
 }
 
-void factor() :
+ASTNode factor() :
 {
-   
+  ASTNode factorNode = factory.makeASTNode("FactorNode");
   Token id;
+  Token constant;
+  ASTNode constantNode = null;
+  ASTNode expressionNode = null;
+  ASTNode secondFactorNode = null;
 }
 {
   (
@@ -585,15 +646,39 @@ void factor() :
       )?
       < O_RPAREN >
     )?
-  | < O_INT >
     {
-      ASTNode constantNode = factory.makeASTNode("ConstantNode");
+      factorNode.addChild(idReference);
     }
-  | < O_FLOATCON >
-  | < O_CHAR >
-  | < O_LPAREN > expr() < O_RPAREN >
-  | < O_NOT > factor()
+  | constant = < O_INT >
+    {
+      constantNode = factory.makeASTNode("ConstantNode").addLabel(constant.image);
+      factorNode.addChild(constantNode);
+    }
+  | constant = < O_FLOATCON >
+    {
+      constantNode = factory.makeASTNode("ConstantNode").addLabel(constant.image);
+      factorNode.addChild(constantNode);
+    }
+  | constant = < O_CHAR >
+    {
+      constantNode = factory.makeASTNode("ConstantNode").addLabel(constant.image);
+      factorNode.addChild(constantNode);
+    }
+  | < O_LPAREN > expressionNode = expr() < O_RPAREN >
+  {
+    ASTNode leftParen = factory.makeASTNode("ParenNode").addLabel("(");
+    ASTNode rightParen = factory.makeASTNode("ParenNode").addLabel(")");
+    factorNode.addChild(leftParen).addChild(expressionNode).addChild(rightParen);
+  }
+  | < O_NOT > secondFactorNode = factor()
+  {
+    ASTNode not = factory.makeASTNode("NotNode").addLabel("NOT");
+    factorNode.addChild(not).addChild(secondFactorNode);
+  }
   )
+  {
+    return factorNode;
+  }
 }
 
 ASTNode variable() :

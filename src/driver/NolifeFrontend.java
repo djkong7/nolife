@@ -33,7 +33,6 @@ public class NolifeFrontend extends Frontend {
 			System.err.println("Syntax Error in " + fileName + ": " + e);
 			System.exit(-1);
 		}
-		
 		System.out.println(fileName + " parsed successfully!");
 	}
 

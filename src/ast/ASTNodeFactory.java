@@ -26,6 +26,30 @@ public class ASTNodeFactory {
 			return new CmpStmtNode();
 		} else if (nodeType == "StmtNode") {
 			return new StmtNode();
+		} else if (nodeType == "AssignmentNode") {
+			return new AssignmentNode();
+		} else if (nodeType == "ExpNode") {
+			return new ExpNode();
+		} else if (nodeType == "AddNode") {
+			return new AddNode();
+		} else if (nodeType == "SubNode") {
+			return new SubNode();
+		} else if (nodeType == "MulNode") {
+			return new MulNode();
+		} else if (nodeType == "ModNode") {
+			return new ModNode();
+		} else if (nodeType == "FactorNode") {
+			return new FactorNode();
+		} else if (nodeType == "IdRefNode") {
+			return new IdRefNode();
+		} else if (nodeType == "ConstantNode") {
+			return new ConstantNode();
+		} else if (nodeType == "ParenNode") {
+			return new ParenNode();
+		} else if (nodeType == "NotNode") {
+			return new NotNode();
+		} else if (nodeType == "IdDefNode") {
+			return new IdDefNode();
 		} else {
 			return null;
 		}
