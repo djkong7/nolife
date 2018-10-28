@@ -167,6 +167,13 @@ public class SourceVisitor implements Visitor{
 	public void visit(NotNode notNode) {
 		src += " " + notNode.getLabel();
 	}
+	
+	@Override
+	public void visit(ExpListNode expressionListNode) {
+		for(ASTNode node: expressionListNode.getChildren()) {
+			node.accept(this);
+		}
+	}
 
 }
 

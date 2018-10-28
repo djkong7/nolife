@@ -23,5 +23,6 @@ public interface Visitor {
 	void visit(ConstantNode constantNode);
 	void visit(ParenNode parenNode);
 	void visit(NotNode notNode);
+	void visit(ExpListNode expressionListNode);
 	
 }

@@ -267,20 +267,27 @@ ASTNode dim() :
 
 void subprogram_decls() :
 {
+  ASTNode subProgramDeclarations = factory.makeASTNode("SubProgDecl");
+  ASTNode subProgramDeclaration = null;
 }
 {
   (
-    subprogram_decl() < O_SEMICOLON >
+    subProgramDeclsaration = subprogram_decl() < O_SEMICOLON >
+    {
+      subProgramDeclarations.addChild(subProgramDeclaration);
+    }
   )+
 }
 
 void subprogram_decl() :
 {
+  ASTNode subProgramHead = null;
+  ASTNode declarationsNode = null;
 }
 {
-  subprogram_head()
+  subProgramHead = subprogram_head()
   (
-    decls()
+    declarationsNode = decls()
   )?
   compound_stmt()
 }
@@ -485,14 +492,25 @@ void case_labels() :
   )*
 }
 
-void expr_list() :
+ASTNode expr_list() :
 {
+  ASTNode expressionListNode = factory.makeASTNode("ExpListNode");
+  ASTNode expressionNode = null;
 }
 {
-  expr()
+  expressionNode = expr()
+  {
+    expressionListNode.addChild(expressionNode);
+  }
   (
-    < O_COMMA > expr()
+    < O_COMMA > expressionNode = expr()
+    {
+      expressionListNode.addChild(expressionNode);
+    }
   )*
+  {
+    return expressionListNode;
+  }
 }
 
 ASTNode expr() :
@@ -630,6 +648,7 @@ ASTNode factor() :
   ASTNode constantNode = null;
   ASTNode expressionNode = null;
   ASTNode secondFactorNode = null;
+  ASTNode expressionListNode = null;
 }
 {
   (
@@ -637,18 +656,21 @@ ASTNode factor() :
     {
       ASTNode idReference = factory.makeASTNode("IdRefNode");
       idReference.addLabel(id.image);
+      factorNode.addChild(idReference);
     }
     (
       < O_LBRACKET > expr() < O_RBRACKET >
     | < O_LPAREN >
       (
-        expr_list()
+        expressionListNode = expr_list()
       )?
       < O_RPAREN >
+      {
+        ASTNode leftParen = factory.makeASTNode("ParenNode").addLabel("(");
+    	ASTNode rightParen = factory.makeASTNode("ParenNode").addLabel(")");
+    	factorNode.addChild(leftParen).addChild(expressionListNode).addChild(rightParen);
+      }
     )?
-    {
-      factorNode.addChild(idReference);
-    }
   | constant = < O_INT >
     {
       constantNode = factory.makeASTNode("ConstantNode").addLabel(constant.image);

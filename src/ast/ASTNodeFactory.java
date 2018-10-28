@@ -28,6 +28,8 @@ public class ASTNodeFactory {
 			return new StmtNode();
 		} else if (nodeType == "AssignmentNode") {
 			return new AssignmentNode();
+		} else if (nodeType == "ExpListNode") {
+			return new ExpListNode();
 		} else if (nodeType == "ExpNode") {
 			return new ExpNode();
 		} else if (nodeType == "AddNode") {
