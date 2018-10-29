@@ -1,0 +1,29 @@
+PROGRAM cow;
+VAR a : INTEGER;
+ b : FLOAT;
+ d : ARRAY [ 1 .. 2 ] OF CHARACTER;
+ b : INTEGER;
+PROCEDURE a ( b : INTEGER );
+	BEGIN
+		b := 1
+	END;
+PROCEDURE A ( a : INTEGER ; b : INTEGER );
+	BEGIN
+		a := b
+	END;
+FUNCTION A : INTEGER;
+	BEGIN
+		b := 200
+	END;
+FUNCTION B ( a : INTEGER ) : CHARACTER;
+	VAR a : INTEGER;
+	BEGIN
+		RETURN b
+	END;
+FUNCTION C ( a : INTEGER ; a : FLOAT ) : CHARACTER;
+	BEGIN
+		RETURN d [ 1 ]
+	END;
+BEGIN
+	d [ 2 ] := 200
+END

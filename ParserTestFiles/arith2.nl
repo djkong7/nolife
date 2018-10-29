@@ -1,4 +1,4 @@
-PROGRAM arith2;
+PROGRAM arith;
 
 VAR a,b : INTEGER;
 

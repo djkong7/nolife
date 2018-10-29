@@ -46,7 +46,7 @@ public class ASTNodeFactory {
 			return new StmtListNode();
 		} else if (nodeType == "AssignmentNode") {
 			return new AssignmentNode();
-		} else if (nodeType == "IfStmt") {
+		} else if (nodeType == "IfStmtNode") {
 			return new IfStmtNode();
 		} else if (nodeType == "WhileStmtNode") {
 			return new WhileStmtNode();

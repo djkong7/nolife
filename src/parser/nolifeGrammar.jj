@@ -124,10 +124,10 @@ ASTNode program() :
   }
   (
     declarationsNode = decls()
+    {
+    	programNode.addChild(declarationsNode);
+  	}
   )?
-  {
-    programNode.addChild(declarationsNode);
-  }
   (
     subProgramDeclaration = subprogram_decls()
     {
@@ -350,10 +350,11 @@ ASTNode subprogram_head() :
     }
     (
       argumentsNode = arguments()
+      {
+      	subProgramHead.addChild(argumentsNode);
+    	}
     )?
-    {
-      subProgramHead.addChild(argumentsNode);
-    }
+    
     < O_SEMICOLON >
   )
   {
@@ -479,7 +480,7 @@ ASTNode if_stmt() :
   }
   [
     LOOKAHEAD(< O_ELSE >)
-    < O_ELSE > stmt()
+    < O_ELSE > statement = stmt()
     {
     ifStmt.addChild(statement);
   }
@@ -772,7 +773,7 @@ ASTNode term1Prime(ASTNode leftFactorNode) :
     leftFactorNode = term1Prime(gENode)
   | < O_NE > rightFactorNode = term2()
     {
-      ASTNode nENode = factory.makeASTNode("NENode").addLabel("!=");
+      ASTNode nENode = factory.makeASTNode("NENode").addLabel("<>");
       nENode.addChild(leftFactorNode).addChild(rightFactorNode);
     }
     leftFactorNode = term1Prime(nENode)
@@ -874,6 +875,8 @@ ASTNode factor() :
   ASTNode expressionNode = null;
   ASTNode secondFactorNode = null;
   ASTNode expressionListNode = null;
+  ASTNode leftParen = null;
+  ASTNode rightParen = null;
 }
 {
   (
@@ -891,14 +894,20 @@ ASTNode factor() :
         factorNode.addChild(leftBracket).addChild(expressionNode).addChild(rightBracket);
       }
     | < O_LPAREN >
+    {
+      leftParen = factory.makeASTNode("ParenNode").addLabel("(");
+      factorNode.addChild(leftParen);
+    }
       (
         expressionListNode = expr_list()
+        {
+        factorNode.addChild(expressionListNode);
+      }
       )?
       < O_RPAREN >
       {
-        ASTNode leftParen = factory.makeASTNode("ParenNode").addLabel("(");
-        ASTNode rightParen = factory.makeASTNode("ParenNode").addLabel(")");
-        factorNode.addChild(leftParen).addChild(expressionListNode).addChild(rightParen);
+        rightParen = factory.makeASTNode("ParenNode").addLabel(")");
+        factorNode.addChild(rightParen);
       }
     )?
   | constant = < O_INT >
@@ -918,8 +927,8 @@ ASTNode factor() :
     }
   | < O_LPAREN > expressionNode = expr() < O_RPAREN >
     {
-      ASTNode leftParen = factory.makeASTNode("ParenNode").addLabel("(");
-      ASTNode rightParen = factory.makeASTNode("ParenNode").addLabel(")");
+      leftParen = factory.makeASTNode("ParenNode").addLabel("(");
+      rightParen = factory.makeASTNode("ParenNode").addLabel(")");
       factorNode.addChild(leftParen).addChild(expressionNode).addChild(rightParen);
     }
   | < O_NOT > secondFactorNode = factor()

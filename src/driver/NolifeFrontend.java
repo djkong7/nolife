@@ -28,12 +28,13 @@ public class NolifeFrontend extends Frontend {
 			ASTNode node = NolifeParser.program();
 			SourceVisitor v = new SourceVisitor();
 			node.accept(v);
-			System.out.println("Program is:\n\n" + v.getSrc());
+			//System.out.println("Program is:\n\n" + v.getSrc());
+			System.out.println(v.getSrc());
 		} catch (ParseException e) {
 			System.err.println("Syntax Error in " + fileName + ": " + e);
 			System.exit(-1);
 		}
-		System.out.println(fileName + " parsed successfully!");
+		//System.out.println(fileName + " parsed successfully!");
 	}
 
 }

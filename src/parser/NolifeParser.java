@@ -19,12 +19,12 @@ public class NolifeParser implements NolifeParserConstants {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case O_VAR:
       declarationsNode = decls();
+        programNode.addChild(declarationsNode);
       break;
     default:
       jj_la1[0] = jj_gen;
       ;
     }
-    programNode.addChild(declarationsNode);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case O_FUNCTION:
     case O_PROCEDURE:
@@ -273,12 +273,12 @@ public class NolifeParser implements NolifeParserConstants {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case O_LPAREN:
         argumentsNode = arguments();
+        subProgramHead.addChild(argumentsNode);
         break;
       default:
         jj_la1[10] = jj_gen;
         ;
       }
-      subProgramHead.addChild(argumentsNode);
       jj_consume_token(O_SEMICOLON);
       break;
     default:
@@ -425,7 +425,7 @@ public class NolifeParser implements NolifeParserConstants {
     ifStmt.addChild(expressionNode).addChild(statement);
     if (jj_2_2(2147483647)) {
       jj_consume_token(O_ELSE);
-      stmt();
+      statement = stmt();
     ifStmt.addChild(statement);
     } else {
       ;
@@ -743,7 +743,7 @@ public class NolifeParser implements NolifeParserConstants {
     case O_NE:
       jj_consume_token(O_NE);
       rightFactorNode = term2();
-      ASTNode nENode = factory.makeASTNode("NENode").addLabel("!=");
+      ASTNode nENode = factory.makeASTNode("NENode").addLabel("<>");
       nENode.addChild(leftFactorNode).addChild(rightFactorNode);
       leftFactorNode = term1Prime(nENode);
       break;
@@ -836,6 +836,8 @@ public class NolifeParser implements NolifeParserConstants {
   ASTNode expressionNode = null;
   ASTNode secondFactorNode = null;
   ASTNode expressionListNode = null;
+  ASTNode leftParen = null;
+  ASTNode rightParen = null;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case O_IDENTIFIER:
       id = jj_consume_token(O_IDENTIFIER);
@@ -856,6 +858,8 @@ public class NolifeParser implements NolifeParserConstants {
           break;
         case O_LPAREN:
           jj_consume_token(O_LPAREN);
+      leftParen = factory.makeASTNode("ParenNode").addLabel("(");
+      factorNode.addChild(leftParen);
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case O_NOT:
           case O_LPAREN:
@@ -864,15 +868,15 @@ public class NolifeParser implements NolifeParserConstants {
           case O_FLOATCON:
           case O_INT:
             expressionListNode = expr_list();
+        factorNode.addChild(expressionListNode);
             break;
           default:
             jj_la1[28] = jj_gen;
             ;
           }
           jj_consume_token(O_RPAREN);
-        ASTNode leftParen = factory.makeASTNode("ParenNode").addLabel("(");
-        ASTNode rightParen = factory.makeASTNode("ParenNode").addLabel(")");
-        factorNode.addChild(leftParen).addChild(expressionListNode).addChild(rightParen);
+        rightParen = factory.makeASTNode("ParenNode").addLabel(")");
+        factorNode.addChild(rightParen);
           break;
         default:
           jj_la1[29] = jj_gen;
@@ -904,8 +908,8 @@ public class NolifeParser implements NolifeParserConstants {
       jj_consume_token(O_LPAREN);
       expressionNode = expr();
       jj_consume_token(O_RPAREN);
-      ASTNode leftParen = factory.makeASTNode("ParenNode").addLabel("(");
-      ASTNode rightParen = factory.makeASTNode("ParenNode").addLabel(")");
+      leftParen = factory.makeASTNode("ParenNode").addLabel("(");
+      rightParen = factory.makeASTNode("ParenNode").addLabel(")");
       factorNode.addChild(leftParen).addChild(expressionNode).addChild(rightParen);
       break;
     case O_NOT:
@@ -969,13 +973,21 @@ public class NolifeParser implements NolifeParserConstants {
     finally { jj_save(1, xla); }
   }
 
-  static private boolean jj_3R_11() {
-    if (jj_scan_token(O_LBRACKET)) return true;
+  static private boolean jj_3R_10() {
+    if (jj_scan_token(O_IDENTIFIER)) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_11()) jj_scanpos = xsp;
     return false;
   }
 
   static private boolean jj_3_1() {
     if (jj_3R_9()) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_11() {
+    if (jj_scan_token(O_LBRACKET)) return true;
     return false;
   }
 
@@ -987,14 +999,6 @@ public class NolifeParser implements NolifeParserConstants {
 
   static private boolean jj_3_2() {
     if (jj_scan_token(O_ELSE)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_10() {
-    if (jj_scan_token(O_IDENTIFIER)) return true;
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_11()) jj_scanpos = xsp;
     return false;
   }
 

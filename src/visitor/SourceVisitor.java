@@ -34,7 +34,7 @@ public class SourceVisitor implements Visitor {
 		for (ASTNode node : programNode.getChildren()) {
 			node.accept(this);
 		}
-		src += "\n";
+		//src += "\n";
 	}
 
 	@Override
@@ -155,10 +155,6 @@ public class SourceVisitor implements Visitor {
 	@Override
 	public void visit(IdDefNode idDefNode) {
 		src += idDefNode.getLabel();
-		/*
-		 * if(idDefNode.getChildren().size() == 1) { src += " [";
-		 * idDefNode.getChild(0).accept(this); src += " ]"; }
-		 */
 		for (ASTNode node : idDefNode.getChildren()) {
 			node.accept(this);
 		}
@@ -324,6 +320,7 @@ public class SourceVisitor implements Visitor {
 			caseStmtNode.getChild(1).accept(this);
 			tabStack = tabStack.substring(0, tabStack.length() - 1);
 		}
+		src += tabStack + "END";
 	}
 
 	@Override
@@ -450,7 +447,9 @@ public class SourceVisitor implements Visitor {
 		} else {
 			subProgHead.getChild(0).accept(this);
 			subProgHead.getChild(1).accept(this);
-			subProgHead.getChild(2).accept(this);
+			if(subProgHead.getChildren().size() == 3) {
+				subProgHead.getChild(2).accept(this);
+			}
 			src += ";\n";
 		}
 	}
