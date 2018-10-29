@@ -2,7 +2,7 @@ package ast;
 
 import visitor.Visitor;
 
-public class MinArrayNode extends ASTNode {
+public class WhileStmtNode extends ASTNode {
 
 	@Override
 	public void accept(Visitor v) {

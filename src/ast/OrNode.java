@@ -2,7 +2,7 @@ package ast;
 
 import visitor.Visitor;
 
-public class MaxArrayNode extends ASTNode {
+public class OrNode extends BinaryNode {
 
 	@Override
 	public void accept(Visitor v) {

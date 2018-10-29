@@ -2,7 +2,7 @@ package ast;
 
 import visitor.Visitor;
 
-public class VarDeclNode extends ASTNode{
+public class DimNode extends ASTNode {
 
 	@Override
 	public void accept(Visitor v) {
