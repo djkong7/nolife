@@ -12,9 +12,12 @@ public class TypeCheckerVisitor implements Visitor{
 	private HashMap<String, VariableMeta> symTable = new HashMap<String, VariableMeta>();
 	private Stack<HashMap<String, VariableMeta>> symTableStack = new Stack<HashMap<String, VariableMeta>>();
 	
+	private String globalType;
+	
 	public TypeCheckerVisitor() {
 		//symTable.put("1", new VariableMeta());
 		symTableStack.push(symTable);
+		globalType = "";
 	}
 	
 	private void updateTypes(String type) {
@@ -96,7 +99,9 @@ public class TypeCheckerVisitor implements Visitor{
 		if(symTable.containsKey(idDeclNode.getLabel())){
 			System.err.println("ERROR: " + idDeclNode.getLabel() + " declared more than once in the same scope!");
 		}else {
-			symTable.put(idDeclNode.getLabel(), new VariableMeta());
+			VariableMeta cur = new VariableMeta();
+			cur.lineNumber = idDeclNode.getLineNumber();
+			symTable.put(idDeclNode.getLabel(), cur);
 		}
 		
 	}
@@ -159,15 +164,24 @@ public class TypeCheckerVisitor implements Visitor{
 
 	@Override
 	public void visit(AssignmentNode assignmentNode) {
-		for (ASTNode node : assignmentNode.getChildren()) {
-			node.accept(this);
+		assignmentNode.getLeft().accept(this);
+		String leftType = globalType;
+		assignmentNode.getRight().accept(this);
+		String rightType = globalType;
+		if("CHARACTER" == leftType) {
+			if("CHARACTER" != rightType) {
+				System.err.println("ERROR ");
+			}
+				
+		} else {
+			
 		}
 	}
 
 	@Override
 	public void visit(IdDefNode idDefNode) {
 		if(!symTable.containsKey(idDefNode.getLabel())) {
-			System.err.println("ERROR: " + idDefNode.getLabel() + " referenced but not declared!");
+			System.err.println("ERROR: idDefNode " + idDefNode.getLabel() + " referenced but not declared on line " + idDefNode.getLineNumber());
 		} else {
 			VariableMeta temp = symTable.get(idDefNode.getLabel());
 			temp.visited = true;
@@ -176,10 +190,11 @@ public class TypeCheckerVisitor implements Visitor{
 	
 	@Override
 	public void visit(IdRefNode idRefNode) {
+		//If the reference is in the global table and is a function or procedure
 		if(!symTable.containsKey(idRefNode.getLabel())) {
 			HashMap<String,VariableMeta> temp = symTableStack.get(0);
-			if(temp.containsKey(idRefNode.getLabel()) && !(temp.get(idRefNode.getLabel()).type == "FUNCTION")) {
-				System.err.println("ERROR: " + idRefNode.getLabel() + " referenced but not declared!");
+			if(temp.containsKey(idRefNode.getLabel()) && !((temp.get(idRefNode.getLabel()).type == "FUNCTION") || (temp.get(idRefNode.getLabel()).type == "PROCEDURE"))) {
+				System.err.println("ERROR: idRefNode " + idRefNode.getLabel() + " referenced but not declared on line " + idRefNode.getLineNumber());
 			}
 		} else {
 			symTable.get(idRefNode.getLabel()).visited = true;
@@ -348,7 +363,7 @@ public class TypeCheckerVisitor implements Visitor{
 		//Check for err after popping
 		for(Entry<String, VariableMeta> varMeta : temp.entrySet()) {
 			if(!varMeta.getValue().visited) {
-				System.err.println("WARNING: " + varMeta.getKey() + " declared but not referenced!");
+				System.err.println("WARNING: " + varMeta.getKey() + " declared but not referenced on line " + varMeta.getValue().lineNumber);
 			}
 		}
 		symTable = symTableStack.peek();
@@ -366,8 +381,11 @@ public class TypeCheckerVisitor implements Visitor{
 			} else {
 				funcMeta.returnType = subProgHead.getChild(2).getLabel();
 			}
+		} else {
+			funcMeta.returnType = "VOID";
 		}
-		addFunc(subProgHead.getChild(1).getLabel(), funcMeta);
+		funcMeta.visited = true;
+		addFunc(subProgHead.getChild(1), funcMeta);
 		
 		//Push new symbol table onto the stack
 		symTable = new HashMap<String, VariableMeta>();
@@ -388,12 +406,14 @@ public class TypeCheckerVisitor implements Visitor{
 				subProgHead.getChild(2).accept(this);
 			}
 		}
-		addFunc(subProgHead.getChild(1).getLabel(), funcMeta);
+		funcMeta.visited = true;
+		addFunc(subProgHead.getChild(1), funcMeta);
 	}
 	
-	private void addFunc(String key, VariableMeta value) {
+	private void addFunc(ASTNode node, VariableMeta value) {
+		String key = node.getLabel();
 		if(symTable.containsKey(key)){
-			System.err.println("ERROR: " + key + " declared more than once in the same scope!");
+			System.err.println("ERROR: " + key + " declared more than once in the same scope on line " + node.getLineNumber());
 		}else {
 			symTable.put(key,value);
 		}

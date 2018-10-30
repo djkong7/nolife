@@ -6,6 +6,7 @@ public class VariableMeta {
 	public String minDim;
 	public String maxDim;
 	public boolean visited;
+	public int lineNumber;
 	
 	public VariableMeta() {
 		type = "";
@@ -13,5 +14,6 @@ public class VariableMeta {
 		minDim = "";
 		maxDim = "";
 		visited = false;
+		lineNumber = -1;
 	}
 }

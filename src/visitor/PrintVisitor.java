@@ -18,7 +18,7 @@ public class PrintVisitor implements Visitor{
 	}
 	
 	private void addToSrc(ASTNode astNode){
-		src += tabStack + astNode.getClass().getSimpleName()+ ": " + astNode.getLabel() + "\n";
+		src += tabStack + astNode.getClass().getSimpleName()+ ": " + astNode.getLabel() + ": " +astNode.getLineNumber() + "\n";
 		tabStack += "\t";
 		for (ASTNode node : astNode.getChildren()) {
 			node.accept(this);

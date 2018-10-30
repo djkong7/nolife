@@ -8,9 +8,11 @@ import visitor.Visitor;
 public abstract class ASTNode {
 	protected List<ASTNode> children = new ArrayList<ASTNode>();
 	protected String label;
+	protected int lineNumber;
 	
 	public ASTNode() {
 		label = "";
+		lineNumber = -1;
 	}
 	
 	public abstract void accept(Visitor v);
@@ -37,9 +39,18 @@ public abstract class ASTNode {
 		return label;
 	}
 	
-	@Override
-	public String toString() {
-		return "Test of null pointer";
+	//@Override
+	//public String toString() {
+	//	return "Test of null pointer";
+	//}
+	
+	public ASTNode addLineNumber(int num) {
+		lineNumber = num;
+		return this;
+	}
+	
+	public int getLineNumber() {
+		return lineNumber;
 	}
 
 }
