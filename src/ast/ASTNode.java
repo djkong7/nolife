@@ -9,6 +9,10 @@ public abstract class ASTNode {
 	protected List<ASTNode> children = new ArrayList<ASTNode>();
 	protected String label;
 	
+	public ASTNode() {
+		label = "";
+	}
+	
 	public abstract void accept(Visitor v);
 	
 	public ASTNode addChild(ASTNode c) {

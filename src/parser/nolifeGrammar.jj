@@ -125,8 +125,8 @@ ASTNode program() :
   (
     declarationsNode = decls()
     {
-    	programNode.addChild(declarationsNode);
-  	}
+      programNode.addChild(declarationsNode);
+    }
   )?
   (
     subProgramDeclaration = subprogram_decls()
@@ -351,10 +351,9 @@ ASTNode subprogram_head() :
     (
       argumentsNode = arguments()
       {
-      	subProgramHead.addChild(argumentsNode);
-    	}
+        subProgramHead.addChild(argumentsNode);
+      }
     )?
-    
     < O_SEMICOLON >
   )
   {
@@ -482,8 +481,8 @@ ASTNode if_stmt() :
     LOOKAHEAD(< O_ELSE >)
     < O_ELSE > statement = stmt()
     {
-    ifStmt.addChild(statement);
-  }
+      ifStmt.addChild(statement);
+    }
   ]
   {
     return ifStmt;
@@ -894,15 +893,15 @@ ASTNode factor() :
         factorNode.addChild(leftBracket).addChild(expressionNode).addChild(rightBracket);
       }
     | < O_LPAREN >
-    {
-      leftParen = factory.makeASTNode("ParenNode").addLabel("(");
-      factorNode.addChild(leftParen);
-    }
+      {
+        leftParen = factory.makeASTNode("ParenNode").addLabel("(");
+        factorNode.addChild(leftParen);
+      }
       (
         expressionListNode = expr_list()
         {
-        factorNode.addChild(expressionListNode);
-      }
+          factorNode.addChild(expressionListNode);
+        }
       )?
       < O_RPAREN >
       {

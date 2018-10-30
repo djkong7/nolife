@@ -10,12 +10,12 @@ above errors is tested in this file *}
  PROGRAM cow;
 VAR 
     c:CHARACTER; {* error-variable declared but never referenced *}
-    b:INTEGER;
+    bd:INTEGER;
 
 	FUNCTION C(a:INTEGER):CHARACTER;
-        VAR  b : CHARACTER;
+        VAR  ba : CHARACTER;
 	BEGIN
-	RETURN b {*error-parameter a declared but not used *}
+	RETURN ba {*error-parameter a declared but not used *}
 	END; {*I'm not sure the above constitutes an error -- jr*}
 
 	PROCEDURE E;
@@ -27,10 +27,10 @@ VAR
 	END;
 
 	FUNCTION D(a:INTEGER):CHARACTER;
-        VAR  b : CHARACTER;
+        VAR  bc : CHARACTER;
 	BEGIN
-	a:=b {*error no return statement *}
+	a:=bc {*error no return statement *}
 	END;
 BEGIN
-b:=100 
+bd:=100 
 END

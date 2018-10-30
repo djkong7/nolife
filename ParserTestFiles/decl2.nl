@@ -34,7 +34,7 @@ VAR
 	END;
 
 	FUNCTION B(a:INTEGER):CHARACTER; 
-        VAR  a : INTEGER; {*error-a declared twice in same scope-
+        VAR  a :  ; {*error-a declared twice in same scope-
 			    as a parameter and as a local variable *}
 	BEGIN
 	RETURN b                                               
