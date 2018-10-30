@@ -1,0 +1,9 @@
+/visitor/
+/ast/
+/driver/
+/original.sh
+/originalRun.sh
+/reRun.sh
+/diffs.sh
+/printRun.sh
+/parser/

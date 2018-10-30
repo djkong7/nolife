@@ -21,10 +21,10 @@ public class SourceVisitor implements Visitor {
 	}
 
 	// Here to remove errors from unvisited node types
-	// Just here for development
+	// Just here during/for development
 	@Override
 	public void visit(ASTNode astNode) {
-
+		
 	}
 
 	/***************** Variable Declarations *******************/
