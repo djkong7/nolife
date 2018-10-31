@@ -120,7 +120,7 @@ ASTNode program() :
 {
   < O_PROGRAM > programName = < O_IDENTIFIER > < O_SEMICOLON >
   {
-    programNode.addLabel(programName.image);
+    programNode.addLabel(programName.image).addLineNumber(programName.beginLine);
   }
   (
     declarationsNode = decls()
@@ -216,20 +216,21 @@ ASTNode type() :
 ASTNode standard_type() :
 {
   ASTNode typeNode = null;
+  Token tok;
 }
 {
   (
-    < O_INTEGER >
+    tok = < O_INTEGER >
     {
-      typeNode = factory.makeASTNode("IntTypeNode").addLabel("INTEGER");
+      typeNode = factory.makeASTNode("IntTypeNode").addLabel(tok.image).addLineNumber(tok.beginLine);
     }
-  | < O_FLOAT >
+  | tok = < O_FLOAT >
     {
-      typeNode = factory.makeASTNode("FloatTypeNode").addLabel("FLOAT");
+      typeNode = factory.makeASTNode("FloatTypeNode").addLabel(tok.image).addLineNumber(tok.beginLine);
     }
-  | < O_CHARACTER >
+  | tok = < O_CHARACTER >
     {
-      typeNode = factory.makeASTNode("CharTypeNode").addLabel("CHARACTER");
+      typeNode = factory.makeASTNode("CharTypeNode").addLabel(tok.image).addLineNumber(tok.beginLine);
     }
   )
   {
@@ -239,15 +240,17 @@ ASTNode standard_type() :
 
 ASTNode array_type() :
 {
-  ASTNode arrayNode = factory.makeASTNode("ArrayTypeNode").addLabel("ARRAY");
+  
   ASTNode typeNode = null;
   ASTNode dimensions = null;
   ASTNode leftBracket = factory.makeASTNode("BracketNode").addLabel("[");
   ASTNode rightBracket = factory.makeASTNode("BracketNode").addLabel("]");
+  Token tok;
 }
 {
-  < O_ARRAY > < O_LBRACKET > dimensions = dim() < O_RBRACKET > < O_OF > typeNode = standard_type()
+  tok = < O_ARRAY > < O_LBRACKET > dimensions = dim() < O_RBRACKET > < O_OF > typeNode = standard_type()
   {
+    ASTNode arrayNode = factory.makeASTNode("ArrayTypeNode").addLabel(tok.image).addLineNumber(tok.beginLine);
     arrayNode.addChild(leftBracket).addChild(dimensions).addChild(rightBracket).addChild(typeNode);
     return arrayNode;
   }
@@ -265,8 +268,8 @@ ASTNode dim() :
   | minValue = < O_CHAR > < O_DOT > < O_DOT > maxValue = < O_CHAR >
   )
   {
-    ASTNode minDimNode = factory.makeASTNode("MinDimNode").addLabel(minValue.image);
-    ASTNode maxDimNode = factory.makeASTNode("MaxDimNode").addLabel(maxValue.image);
+    ASTNode minDimNode = factory.makeASTNode("MinDimNode").addLabel(minValue.image).addLineNumber(minValue.beginLine);
+    ASTNode maxDimNode = factory.makeASTNode("MaxDimNode").addLabel(maxValue.image).addLineNumber(maxValue.beginLine);
     dimensions.addChild(minDimNode).addChild(maxDimNode);
     return dimensions;
   }
@@ -328,9 +331,9 @@ ASTNode subprogram_head() :
   (
     type = < O_FUNCTION > id = < O_IDENTIFIER >
     {
-      subProgramType = factory.makeASTNode("SubProgTypeNode").addLabel(type.image);
+      subProgramType = factory.makeASTNode("SubProgTypeNode").addLabel(type.image).addLineNumber(type.beginLine);
       funcDec = factory.makeASTNode("IdDeclNode").addLabel(id.image).addLineNumber(id.beginLine);
-      subProgramHead.addChild(subProgramType).addChild(funcDec);
+      subProgramHead.addChild(subProgramType).addChild(funcDec).addLineNumber(type.beginLine);
     }
     (
       argumentsNode = arguments()
@@ -344,9 +347,9 @@ ASTNode subprogram_head() :
     }
   | type = < O_PROCEDURE > id = < O_IDENTIFIER >
     {
-      subProgramType = factory.makeASTNode("SubProgTypeNode").addLabel(type.image);
+      subProgramType = factory.makeASTNode("SubProgTypeNode").addLabel(type.image).addLineNumber(type.beginLine);
       funcDec = factory.makeASTNode("IdDeclNode").addLabel(id.image).addLineNumber(id.beginLine);
-      subProgramHead.addChild(subProgramType).addChild(funcDec);
+      subProgramHead.addChild(subProgramType).addChild(funcDec).addLineNumber(type.beginLine);
     }
     (
       argumentsNode = arguments()
@@ -454,13 +457,14 @@ ASTNode stmt() :
 
 ASTNode assignment() :
 {
-  ASTNode assignment = factory.makeASTNode("AssignmentNode").addLabel(":=");
   ASTNode idDefinitionNode = null;
   ASTNode expressionNode = null;
+  Token tok;
 }
 {
-  idDefinitionNode = variable() < O_ASSIGN > expressionNode = expr()
+  idDefinitionNode = variable() tok = < O_ASSIGN > expressionNode = expr()
   {
+    ASTNode assignment = factory.makeASTNode("AssignmentNode").addLabel(tok.image).addLineNumber(tok.beginLine);
     assignment.addChild(idDefinitionNode).addChild(expressionNode);
     return assignment;
   }
@@ -468,13 +472,14 @@ ASTNode assignment() :
 
 ASTNode if_stmt() :
 {
-  ASTNode ifStmt = factory.makeASTNode("IfStmtNode");
   ASTNode expressionNode = null;
   ASTNode statement = null;
+  Token tok;
 }
 {
-  < O_IF > expressionNode = expr() < O_THEN > statement = stmt()
+  tok = < O_IF > expressionNode = expr() < O_THEN > statement = stmt()
   {
+    ASTNode ifStmt = factory.makeASTNode("IfStmtNode").addLabel(tok.image).addLineNumber(tok.beginLine);
     ifStmt.addChild(expressionNode).addChild(statement);
   }
   [
@@ -491,13 +496,14 @@ ASTNode if_stmt() :
 
 ASTNode while_stmt() :
 {
-  ASTNode whileStmt = factory.makeASTNode("WhileStmtNode");
   ASTNode expressionNode = null;
   ASTNode statement = null;
+  Token tok;
 }
 {
-  < O_WHILE > expressionNode = expr() < O_DO > statement = stmt()
+  tok = < O_WHILE > expressionNode = expr() < O_DO > statement = stmt()
   {
+    ASTNode whileStmt = factory.makeASTNode("WhileStmtNode").addLabel(tok.image).addLineNumber(tok.beginLine);
     whileStmt.addChild(expressionNode).addChild(statement);
     return whileStmt;
   }
@@ -584,7 +590,6 @@ ASTNode return_stmt() :
 
 ASTNode case_stmt() :
 {
-  ASTNode caseStmt = factory.makeASTNode("CaseStmtNode");
   ASTNode expression = null;
   ASTNode cases = null;
   Token tok;
@@ -592,7 +597,8 @@ ASTNode case_stmt() :
 {
   tok = < O_CASE > expression = expr() < O_OF >
   {
-    caseStmt.addChild(expression).addLineNumber(tok.beginLine);
+    ASTNode caseStmt = factory.makeASTNode("CaseStmtNode").addLabel(tok.image).addLineNumber(tok.beginLine);
+    caseStmt.addChild(expression);
   }
   (
     cases = cases()
@@ -709,18 +715,19 @@ ASTNode expr() :
 ASTNode exprPrime(ASTNode leftFactorNode) :
 {
   ASTNode rightFactorNode = null;
+  Token tok;
 }
 {
   (
-    < O_OR > rightFactorNode = term1()
+    tok = < O_OR > rightFactorNode = term1()
     {
-      ASTNode orNode = factory.makeASTNode("OrNode").addLabel("OR");
+      ASTNode orNode = factory.makeASTNode("OrNode").addLabel(tok.image).addLineNumber(tok.beginLine);
       orNode.addChild(leftFactorNode).addChild(rightFactorNode);
     }
     leftFactorNode = exprPrime(orNode)
-  | < O_AND > rightFactorNode = term1()
+  | tok = < O_AND > rightFactorNode = term1()
     {
-      ASTNode andNode = factory.makeASTNode("AndNode").addLabel("AND");
+      ASTNode andNode = factory.makeASTNode("AndNode").addLabel(tok.image).addLineNumber(tok.beginLine);
       andNode.addChild(leftFactorNode).addChild(rightFactorNode);
     }
     leftFactorNode = exprPrime(andNode)
@@ -746,42 +753,43 @@ ASTNode term1() :
 ASTNode term1Prime(ASTNode leftFactorNode) :
 {
   ASTNode rightFactorNode = null;
+  Token tok;
 }
 {
   (
-    < O_LT > rightFactorNode = term2()
+    tok = < O_LT > rightFactorNode = term2()
     {
-      ASTNode lTNode = factory.makeASTNode("LTNode").addLabel("<");
+      ASTNode lTNode = factory.makeASTNode("LTNode").addLabel(tok.image).addLineNumber(tok.beginLine);
       lTNode.addChild(leftFactorNode).addChild(rightFactorNode);
     }
     leftFactorNode = term1Prime(lTNode)
-  | < O_LE > rightFactorNode = term2()
+  | tok = < O_LE > rightFactorNode = term2()
     {
-      ASTNode lENode = factory.makeASTNode("LENode").addLabel("<=");
+      ASTNode lENode = factory.makeASTNode("LENode").addLabel(tok.image).addLineNumber(tok.beginLine);
       lENode.addChild(leftFactorNode).addChild(rightFactorNode);
     }
     leftFactorNode = term1Prime(lENode)
-  | < O_GT > rightFactorNode = term2()
+  | tok = < O_GT > rightFactorNode = term2()
     {
-      ASTNode gTNode = factory.makeASTNode("GTNode").addLabel(">");
+      ASTNode gTNode = factory.makeASTNode("GTNode").addLabel(tok.image).addLineNumber(tok.beginLine);
       gTNode.addChild(leftFactorNode).addChild(rightFactorNode);
     }
     leftFactorNode = term1Prime(gTNode)
-  | < O_GE > rightFactorNode = term2()
+  | tok = < O_GE > rightFactorNode = term2()
     {
-      ASTNode gENode = factory.makeASTNode("GENode").addLabel(">=");
+      ASTNode gENode = factory.makeASTNode("GENode").addLabel(tok.image).addLineNumber(tok.beginLine);
       gENode.addChild(leftFactorNode).addChild(rightFactorNode);
     }
     leftFactorNode = term1Prime(gENode)
-  | < O_NE > rightFactorNode = term2()
+  | tok = < O_NE > rightFactorNode = term2()
     {
-      ASTNode nENode = factory.makeASTNode("NENode").addLabel("<>");
+      ASTNode nENode = factory.makeASTNode("NENode").addLabel(tok.image).addLineNumber(tok.beginLine);
       nENode.addChild(leftFactorNode).addChild(rightFactorNode);
     }
     leftFactorNode = term1Prime(nENode)
-  | < O_EQ > rightFactorNode = term2()
+  | tok = < O_EQ > rightFactorNode = term2()
     {
-      ASTNode eQNode = factory.makeASTNode("EQNode").addLabel("=");
+      ASTNode eQNode = factory.makeASTNode("EQNode").addLabel(tok.image).addLineNumber(tok.beginLine);
       eQNode.addChild(leftFactorNode).addChild(rightFactorNode);
     }
     leftFactorNode = term1Prime(eQNode)
@@ -807,18 +815,19 @@ ASTNode term2() :
 ASTNode term2Prime(ASTNode leftFactorNode) :
 {
   ASTNode rightFactorNode = null;
+  Token tok;
 }
 {
   (
-    < O_PLUS > rightFactorNode = term3()
+    tok = < O_PLUS > rightFactorNode = term3()
     {
-      ASTNode addNode = factory.makeASTNode("AddNode").addLabel("+");
+      ASTNode addNode = factory.makeASTNode("AddNode").addLabel(tok.image).addLineNumber(tok.beginLine);
       addNode.addChild(leftFactorNode).addChild(rightFactorNode);
     }
     leftFactorNode = term2Prime(addNode)
-  | < O_MINUS > rightFactorNode = term3()
+  | tok = < O_MINUS > rightFactorNode = term3()
     {
-      ASTNode subNode = factory.makeASTNode("SubNode").addLabel("-");
+      ASTNode subNode = factory.makeASTNode("SubNode").addLabel(tok.image).addLineNumber(tok.beginLine);
       subNode.addChild(leftFactorNode).addChild(rightFactorNode);
     }
     leftFactorNode = term2Prime(subNode)
@@ -844,19 +853,20 @@ ASTNode term3() :
 ASTNode term3Prime(ASTNode leftFactorNode) :
 {
   ASTNode rightFactorNode = null;
+  Token tok;
 }
 {
   (
-    < O_TIMES > rightFactorNode = factor()
+    tok = < O_TIMES > rightFactorNode = factor()
     {
-      ASTNode multiplicationNode = factory.makeASTNode("MulNode").addLabel("*");
+      ASTNode multiplicationNode = factory.makeASTNode("MulNode").addLabel(tok.image).addLineNumber(tok.beginLine);
       multiplicationNode.addChild(leftFactorNode).addChild(rightFactorNode);
     }
     leftFactorNode = term3Prime(multiplicationNode)
   | 
-    < O_MOD > rightFactorNode = factor()
+    tok = < O_MOD > rightFactorNode = factor()
     {
-      ASTNode modNode = factory.makeASTNode("ModNode").addLabel("MOD");
+      ASTNode modNode = factory.makeASTNode("ModNode").addLabel(tok.image).addLineNumber(tok.beginLine);
       modNode.addChild(leftFactorNode).addChild(rightFactorNode);
     }
     leftFactorNode = term3Prime(modNode)
@@ -873,6 +883,7 @@ ASTNode factor() :
   ASTNode factorNode = factory.makeASTNode("FactorNode");
   Token id;
   Token constant;
+  Token tok;
   ASTNode constantNode = null;
   ASTNode expressionNode = null;
   ASTNode secondFactorNode = null;
@@ -932,9 +943,9 @@ ASTNode factor() :
       rightParen = factory.makeASTNode("ParenNode").addLabel(")");
       factorNode.addChild(leftParen).addChild(expressionNode).addChild(rightParen);
     }
-  | < O_NOT > secondFactorNode = factor()
+  | tok = < O_NOT > secondFactorNode = factor()
     {
-      ASTNode not = factory.makeASTNode("NotNode").addLabel("NOT");
+      ASTNode not = factory.makeASTNode("NotNode").addLabel(tok.image).addLineNumber(tok.beginLine);
       factorNode.addChild(not).addChild(secondFactorNode);
     }
   )
@@ -975,7 +986,7 @@ ASTNode string() :
 {
   text = < O_STRING >
   {
-    stringNode.addLabel(text.image);
+    stringNode.addLabel(text.image).addLineNumber(text.beginLine);
     return stringNode;
   }
 }

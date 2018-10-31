@@ -15,7 +15,7 @@ public class NolifeParser implements NolifeParserConstants {
     jj_consume_token(O_PROGRAM);
     programName = jj_consume_token(O_IDENTIFIER);
     jj_consume_token(O_SEMICOLON);
-    programNode.addLabel(programName.image);
+    programNode.addLabel(programName.image).addLineNumber(programName.beginLine);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case O_VAR:
       declarationsNode = decls();
@@ -123,18 +123,19 @@ public class NolifeParser implements NolifeParserConstants {
 
   static final public ASTNode standard_type() throws ParseException {
   ASTNode typeNode = null;
+  Token tok;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case O_INTEGER:
-      jj_consume_token(O_INTEGER);
-      typeNode = factory.makeASTNode("IntTypeNode").addLabel("INTEGER");
+      tok = jj_consume_token(O_INTEGER);
+      typeNode = factory.makeASTNode("IntTypeNode").addLabel(tok.image).addLineNumber(tok.beginLine);
       break;
     case O_FLOAT:
-      jj_consume_token(O_FLOAT);
-      typeNode = factory.makeASTNode("FloatTypeNode").addLabel("FLOAT");
+      tok = jj_consume_token(O_FLOAT);
+      typeNode = factory.makeASTNode("FloatTypeNode").addLabel(tok.image).addLineNumber(tok.beginLine);
       break;
     case O_CHARACTER:
-      jj_consume_token(O_CHARACTER);
-      typeNode = factory.makeASTNode("CharTypeNode").addLabel("CHARACTER");
+      tok = jj_consume_token(O_CHARACTER);
+      typeNode = factory.makeASTNode("CharTypeNode").addLabel(tok.image).addLineNumber(tok.beginLine);
       break;
     default:
       jj_la1[5] = jj_gen;
@@ -146,17 +147,18 @@ public class NolifeParser implements NolifeParserConstants {
   }
 
   static final public ASTNode array_type() throws ParseException {
-  ASTNode arrayNode = factory.makeASTNode("ArrayTypeNode").addLabel("ARRAY");
   ASTNode typeNode = null;
   ASTNode dimensions = null;
   ASTNode leftBracket = factory.makeASTNode("BracketNode").addLabel("[");
   ASTNode rightBracket = factory.makeASTNode("BracketNode").addLabel("]");
-    jj_consume_token(O_ARRAY);
+  Token tok;
+    tok = jj_consume_token(O_ARRAY);
     jj_consume_token(O_LBRACKET);
     dimensions = dim();
     jj_consume_token(O_RBRACKET);
     jj_consume_token(O_OF);
     typeNode = standard_type();
+    ASTNode arrayNode = factory.makeASTNode("ArrayTypeNode").addLabel(tok.image).addLineNumber(tok.beginLine);
     arrayNode.addChild(leftBracket).addChild(dimensions).addChild(rightBracket).addChild(typeNode);
     {if (true) return arrayNode;}
     throw new Error("Missing return statement in function");
@@ -184,8 +186,8 @@ public class NolifeParser implements NolifeParserConstants {
       jj_consume_token(-1);
       throw new ParseException();
     }
-    ASTNode minDimNode = factory.makeASTNode("MinDimNode").addLabel(minValue.image);
-    ASTNode maxDimNode = factory.makeASTNode("MaxDimNode").addLabel(maxValue.image);
+    ASTNode minDimNode = factory.makeASTNode("MinDimNode").addLabel(minValue.image).addLineNumber(minValue.beginLine);
+    ASTNode maxDimNode = factory.makeASTNode("MaxDimNode").addLabel(maxValue.image).addLineNumber(maxValue.beginLine);
     dimensions.addChild(minDimNode).addChild(maxDimNode);
     {if (true) return dimensions;}
     throw new Error("Missing return statement in function");
@@ -247,9 +249,9 @@ public class NolifeParser implements NolifeParserConstants {
     case O_FUNCTION:
       type = jj_consume_token(O_FUNCTION);
       id = jj_consume_token(O_IDENTIFIER);
-      subProgramType = factory.makeASTNode("SubProgTypeNode").addLabel(type.image);
+      subProgramType = factory.makeASTNode("SubProgTypeNode").addLabel(type.image).addLineNumber(type.beginLine);
       funcDec = factory.makeASTNode("IdDeclNode").addLabel(id.image).addLineNumber(id.beginLine);
-      subProgramHead.addChild(subProgramType).addChild(funcDec);
+      subProgramHead.addChild(subProgramType).addChild(funcDec).addLineNumber(type.beginLine);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case O_LPAREN:
         argumentsNode = arguments();
@@ -267,9 +269,9 @@ public class NolifeParser implements NolifeParserConstants {
     case O_PROCEDURE:
       type = jj_consume_token(O_PROCEDURE);
       id = jj_consume_token(O_IDENTIFIER);
-      subProgramType = factory.makeASTNode("SubProgTypeNode").addLabel(type.image);
+      subProgramType = factory.makeASTNode("SubProgTypeNode").addLabel(type.image).addLineNumber(type.beginLine);
       funcDec = factory.makeASTNode("IdDeclNode").addLabel(id.image).addLineNumber(id.beginLine);
-      subProgramHead.addChild(subProgramType).addChild(funcDec);
+      subProgramHead.addChild(subProgramType).addChild(funcDec).addLineNumber(type.beginLine);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case O_LPAREN:
         argumentsNode = arguments();
@@ -403,25 +405,27 @@ public class NolifeParser implements NolifeParserConstants {
   }
 
   static final public ASTNode assignment() throws ParseException {
-  ASTNode assignment = factory.makeASTNode("AssignmentNode").addLabel(":=");
   ASTNode idDefinitionNode = null;
   ASTNode expressionNode = null;
+  Token tok;
     idDefinitionNode = variable();
-    jj_consume_token(O_ASSIGN);
+    tok = jj_consume_token(O_ASSIGN);
     expressionNode = expr();
+    ASTNode assignment = factory.makeASTNode("AssignmentNode").addLabel(tok.image).addLineNumber(tok.beginLine);
     assignment.addChild(idDefinitionNode).addChild(expressionNode);
     {if (true) return assignment;}
     throw new Error("Missing return statement in function");
   }
 
   static final public ASTNode if_stmt() throws ParseException {
-  ASTNode ifStmt = factory.makeASTNode("IfStmtNode");
   ASTNode expressionNode = null;
   ASTNode statement = null;
-    jj_consume_token(O_IF);
+  Token tok;
+    tok = jj_consume_token(O_IF);
     expressionNode = expr();
     jj_consume_token(O_THEN);
     statement = stmt();
+    ASTNode ifStmt = factory.makeASTNode("IfStmtNode").addLabel(tok.image).addLineNumber(tok.beginLine);
     ifStmt.addChild(expressionNode).addChild(statement);
     if (jj_2_2(2147483647)) {
       jj_consume_token(O_ELSE);
@@ -435,13 +439,14 @@ public class NolifeParser implements NolifeParserConstants {
   }
 
   static final public ASTNode while_stmt() throws ParseException {
-  ASTNode whileStmt = factory.makeASTNode("WhileStmtNode");
   ASTNode expressionNode = null;
   ASTNode statement = null;
-    jj_consume_token(O_WHILE);
+  Token tok;
+    tok = jj_consume_token(O_WHILE);
     expressionNode = expr();
     jj_consume_token(O_DO);
     statement = stmt();
+    ASTNode whileStmt = factory.makeASTNode("WhileStmtNode").addLabel(tok.image).addLineNumber(tok.beginLine);
     whileStmt.addChild(expressionNode).addChild(statement);
     {if (true) return whileStmt;}
     throw new Error("Missing return statement in function");
@@ -540,14 +545,14 @@ public class NolifeParser implements NolifeParserConstants {
   }
 
   static final public ASTNode case_stmt() throws ParseException {
-  ASTNode caseStmt = factory.makeASTNode("CaseStmtNode");
   ASTNode expression = null;
   ASTNode cases = null;
   Token tok;
     tok = jj_consume_token(O_CASE);
     expression = expr();
     jj_consume_token(O_OF);
-    caseStmt.addChild(expression).addLineNumber(tok.beginLine);
+    ASTNode caseStmt = factory.makeASTNode("CaseStmtNode").addLabel(tok.image).addLineNumber(tok.beginLine);
+    caseStmt.addChild(expression);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case O_FLOATCON:
     case O_INT:
@@ -681,18 +686,19 @@ public class NolifeParser implements NolifeParserConstants {
 
   static final public ASTNode exprPrime(ASTNode leftFactorNode) throws ParseException {
   ASTNode rightFactorNode = null;
+  Token tok;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case O_OR:
-      jj_consume_token(O_OR);
+      tok = jj_consume_token(O_OR);
       rightFactorNode = term1();
-      ASTNode orNode = factory.makeASTNode("OrNode").addLabel("OR");
+      ASTNode orNode = factory.makeASTNode("OrNode").addLabel(tok.image).addLineNumber(tok.beginLine);
       orNode.addChild(leftFactorNode).addChild(rightFactorNode);
       leftFactorNode = exprPrime(orNode);
       break;
     case O_AND:
-      jj_consume_token(O_AND);
+      tok = jj_consume_token(O_AND);
       rightFactorNode = term1();
-      ASTNode andNode = factory.makeASTNode("AndNode").addLabel("AND");
+      ASTNode andNode = factory.makeASTNode("AndNode").addLabel(tok.image).addLineNumber(tok.beginLine);
       andNode.addChild(leftFactorNode).addChild(rightFactorNode);
       leftFactorNode = exprPrime(andNode);
       break;
@@ -714,46 +720,47 @@ public class NolifeParser implements NolifeParserConstants {
 
   static final public ASTNode term1Prime(ASTNode leftFactorNode) throws ParseException {
   ASTNode rightFactorNode = null;
+  Token tok;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case O_LT:
-      jj_consume_token(O_LT);
+      tok = jj_consume_token(O_LT);
       rightFactorNode = term2();
-      ASTNode lTNode = factory.makeASTNode("LTNode").addLabel("<");
+      ASTNode lTNode = factory.makeASTNode("LTNode").addLabel(tok.image).addLineNumber(tok.beginLine);
       lTNode.addChild(leftFactorNode).addChild(rightFactorNode);
       leftFactorNode = term1Prime(lTNode);
       break;
     case O_LE:
-      jj_consume_token(O_LE);
+      tok = jj_consume_token(O_LE);
       rightFactorNode = term2();
-      ASTNode lENode = factory.makeASTNode("LENode").addLabel("<=");
+      ASTNode lENode = factory.makeASTNode("LENode").addLabel(tok.image).addLineNumber(tok.beginLine);
       lENode.addChild(leftFactorNode).addChild(rightFactorNode);
       leftFactorNode = term1Prime(lENode);
       break;
     case O_GT:
-      jj_consume_token(O_GT);
+      tok = jj_consume_token(O_GT);
       rightFactorNode = term2();
-      ASTNode gTNode = factory.makeASTNode("GTNode").addLabel(">");
+      ASTNode gTNode = factory.makeASTNode("GTNode").addLabel(tok.image).addLineNumber(tok.beginLine);
       gTNode.addChild(leftFactorNode).addChild(rightFactorNode);
       leftFactorNode = term1Prime(gTNode);
       break;
     case O_GE:
-      jj_consume_token(O_GE);
+      tok = jj_consume_token(O_GE);
       rightFactorNode = term2();
-      ASTNode gENode = factory.makeASTNode("GENode").addLabel(">=");
+      ASTNode gENode = factory.makeASTNode("GENode").addLabel(tok.image).addLineNumber(tok.beginLine);
       gENode.addChild(leftFactorNode).addChild(rightFactorNode);
       leftFactorNode = term1Prime(gENode);
       break;
     case O_NE:
-      jj_consume_token(O_NE);
+      tok = jj_consume_token(O_NE);
       rightFactorNode = term2();
-      ASTNode nENode = factory.makeASTNode("NENode").addLabel("<>");
+      ASTNode nENode = factory.makeASTNode("NENode").addLabel(tok.image).addLineNumber(tok.beginLine);
       nENode.addChild(leftFactorNode).addChild(rightFactorNode);
       leftFactorNode = term1Prime(nENode);
       break;
     case O_EQ:
-      jj_consume_token(O_EQ);
+      tok = jj_consume_token(O_EQ);
       rightFactorNode = term2();
-      ASTNode eQNode = factory.makeASTNode("EQNode").addLabel("=");
+      ASTNode eQNode = factory.makeASTNode("EQNode").addLabel(tok.image).addLineNumber(tok.beginLine);
       eQNode.addChild(leftFactorNode).addChild(rightFactorNode);
       leftFactorNode = term1Prime(eQNode);
       break;
@@ -775,18 +782,19 @@ public class NolifeParser implements NolifeParserConstants {
 
   static final public ASTNode term2Prime(ASTNode leftFactorNode) throws ParseException {
   ASTNode rightFactorNode = null;
+  Token tok;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case O_PLUS:
-      jj_consume_token(O_PLUS);
+      tok = jj_consume_token(O_PLUS);
       rightFactorNode = term3();
-      ASTNode addNode = factory.makeASTNode("AddNode").addLabel("+");
+      ASTNode addNode = factory.makeASTNode("AddNode").addLabel(tok.image).addLineNumber(tok.beginLine);
       addNode.addChild(leftFactorNode).addChild(rightFactorNode);
       leftFactorNode = term2Prime(addNode);
       break;
     case O_MINUS:
-      jj_consume_token(O_MINUS);
+      tok = jj_consume_token(O_MINUS);
       rightFactorNode = term3();
-      ASTNode subNode = factory.makeASTNode("SubNode").addLabel("-");
+      ASTNode subNode = factory.makeASTNode("SubNode").addLabel(tok.image).addLineNumber(tok.beginLine);
       subNode.addChild(leftFactorNode).addChild(rightFactorNode);
       leftFactorNode = term2Prime(subNode);
       break;
@@ -808,18 +816,19 @@ public class NolifeParser implements NolifeParserConstants {
 
   static final public ASTNode term3Prime(ASTNode leftFactorNode) throws ParseException {
   ASTNode rightFactorNode = null;
+  Token tok;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case O_TIMES:
-      jj_consume_token(O_TIMES);
+      tok = jj_consume_token(O_TIMES);
       rightFactorNode = factor();
-      ASTNode multiplicationNode = factory.makeASTNode("MulNode").addLabel("*");
+      ASTNode multiplicationNode = factory.makeASTNode("MulNode").addLabel(tok.image).addLineNumber(tok.beginLine);
       multiplicationNode.addChild(leftFactorNode).addChild(rightFactorNode);
       leftFactorNode = term3Prime(multiplicationNode);
       break;
     case O_MOD:
-      jj_consume_token(O_MOD);
+      tok = jj_consume_token(O_MOD);
       rightFactorNode = factor();
-      ASTNode modNode = factory.makeASTNode("ModNode").addLabel("MOD");
+      ASTNode modNode = factory.makeASTNode("ModNode").addLabel(tok.image).addLineNumber(tok.beginLine);
       modNode.addChild(leftFactorNode).addChild(rightFactorNode);
       leftFactorNode = term3Prime(modNode);
       break;
@@ -835,6 +844,7 @@ public class NolifeParser implements NolifeParserConstants {
   ASTNode factorNode = factory.makeASTNode("FactorNode");
   Token id;
   Token constant;
+  Token tok;
   ASTNode constantNode = null;
   ASTNode expressionNode = null;
   ASTNode secondFactorNode = null;
@@ -915,9 +925,9 @@ public class NolifeParser implements NolifeParserConstants {
       factorNode.addChild(leftParen).addChild(expressionNode).addChild(rightParen);
       break;
     case O_NOT:
-      jj_consume_token(O_NOT);
+      tok = jj_consume_token(O_NOT);
       secondFactorNode = factor();
-      ASTNode not = factory.makeASTNode("NotNode").addLabel("NOT");
+      ASTNode not = factory.makeASTNode("NotNode").addLabel(tok.image).addLineNumber(tok.beginLine);
       factorNode.addChild(not).addChild(secondFactorNode);
       break;
     default:
@@ -956,7 +966,7 @@ public class NolifeParser implements NolifeParserConstants {
   ASTNode stringNode = factory.makeASTNode("StringNode");
   Token text;
     text = jj_consume_token(O_STRING);
-    stringNode.addLabel(text.image);
+    stringNode.addLabel(text.image).addLineNumber(text.beginLine);
     {if (true) return stringNode;}
     throw new Error("Missing return statement in function");
   }
@@ -983,13 +993,13 @@ public class NolifeParser implements NolifeParserConstants {
     return false;
   }
 
-  static private boolean jj_3R_11() {
-    if (jj_scan_token(O_LBRACKET)) return true;
+  static private boolean jj_3_1() {
+    if (jj_3R_9()) return true;
     return false;
   }
 
-  static private boolean jj_3_1() {
-    if (jj_3R_9()) return true;
+  static private boolean jj_3R_11() {
+    if (jj_scan_token(O_LBRACKET)) return true;
     return false;
   }
 

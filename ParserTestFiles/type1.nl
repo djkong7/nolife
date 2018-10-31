@@ -15,11 +15,9 @@ above error is tested in this file *}
 	    d : FLOAT;
 	
 	BEGIN
-		a:= a + (c*d)*e; {*error-character used in right
-				   hand side of assignment *}
-		B:=c +c*d; {* error-character is being assigned
-			       a float value *}
-                e:= c<d ; {* character being assigned an integer*}
+		a:= a + (c*d)*e; {*error-character used in right hand side of assignment *}
+		B:= c + c*d; {* error-character is being assigned a float value *}
+        e:= c<d ; {* character being assigned an integer*}
 		c:= NOT d; {*NOT only valid for integers*}
 		c:= NOT e; {*NOT only valid for integers*}
 		c:= a AND d; {*AND&OR only defined for ints*}
